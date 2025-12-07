@@ -22,9 +22,23 @@ struct FilmsListView: View {
             case .loaded(let films):
                 List(films) { film in
                     NavigationLink(value: film) {
-                        Text(film.title)
+                        HStack {
+                            FilmImageView(urlPath: film.image)
+                                .frame(width: 100, height: 150)
+                                .cornerRadius(16)
+                                .padding(.trailing)
+                            
+                            VStack(alignment: .leading) {
+                                Text(film.title)
+                                    .font(.title3)
+                                Text(film.director)
+                                    .font(Font.title3.italic())
+                                Text(film.releaseYear)
+                            }
+                        }
                     }
                 }
+                .navigationTitle("Films")
                 .navigationDestination(for: Film.self) { film in
                     FilmDetailView(film: film)
                 }
