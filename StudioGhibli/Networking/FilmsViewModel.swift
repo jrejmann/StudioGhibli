@@ -10,16 +10,7 @@ import Observation
 
 @Observable
 class FilmsViewModel {
-
-    enum State: Equatable {
-        case idle
-        case loading
-        case loaded([Film])
-        case error(String)
-    }
-
-    var state: State = .idle
-    var films: [Film] = []
+    var state: LoadingState<[Film]> = .idle
 
     private let service: GhibliService
 

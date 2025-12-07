@@ -7,42 +7,69 @@
 
 import Foundation
 import Observation
+import Playgrounds
 
 @Observable
 class FilmDetailViewModel {
-    
-    enum State: Equatable {
-        case idle
-        case loading
-        case loaded([Person])
-        case error(String)
-    }
+    var state: LoadingState<[Person]> = .idle
 
-    var state: State = .idle
-    var people: [Person] = []
-    
-    let service: GhibliService
-    
+    private let service: GhibliService
+
     init(service: GhibliService = DefaultGhibliService()) {
         self.service = service
     }
-    
+
     func fetch(for film: Film) async {
-        self.state = .loading
-        self.people = []
-        var data: [Person] = []
-        
+        guard !state.isLoading else { return }
+
+        state = .loading
+
+        var loadedPeople: [Person] = []
+
         do {
-            for personInfoURL in film.people {
-                let person = try await service.fetchPerson(from: personInfoURL)
-                data.append(person)
+            try await withThrowingTaskGroup(of: Person.self) { group in
+                for personURL in film.people {
+                    group.addTask {
+                        return try await self.service.fetchPerson(
+                            from: personURL
+                        )
+                    }
+                }
+
+                for try await person in group {
+                    loadedPeople.append(person)
+                }
             }
-            self.people = data
-            self.state = .loaded(data)
+
+            state = .loaded(loadedPeople)
         } catch let error as APIError {
-            self.state = .error(error.localizedDescription)
+            self.state = .error(error.errorDescription ?? "unknown error")
         } catch {
             self.state = .error("unknown error")
         }
     }
+}
+
+#Playground {
+    let service = MockGhibliService()
+    let vm = FilmDetailViewModel(service: service)
+
+    do {
+        let film = try await service.fetchFilm()
+        await vm.fetch(for: film)
+
+        switch vm.state {
+        case .loading: print("loading")
+        case .idle: print("idle")
+        case .loaded(let people):
+            for person in people {
+                print(person)
+            }
+            print("loaded for preview")
+        case .error(let error): print(error)
+        }
+    } catch {
+        print("Failed to load film: \(error)")
+    }
+
 }

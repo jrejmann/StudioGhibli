@@ -9,29 +9,38 @@ import SwiftUI
 
 struct FilmDetailView: View {
     var film: Film
-    var viewModel: FilmDetailViewModel
-    
+
+    @State private var viewModel = FilmDetailViewModel()
+
     var body: some View {
         VStack {
             Text(film.title)
-         
-            if (viewModel.people.isEmpty) {
-                ProgressView {
-                    Text("Loading...")
+            
+            Divider()
+            
+            Text("Characters")
+                .font(.title3)
+
+            switch viewModel.state {
+            case .idle:
+                EmptyView()
+            case .loading:
+                ProgressView()
+            case .loaded(let people):
+                ForEach(people) { person in
+                    Text(person.name)
                 }
-            } else {
-                List(viewModel.people) {
-                    Text($0.name)
-                }
+            case .error(let error):
+                Text(error)
+                    .foregroundStyle(.red)
             }
         }
-        .task(id: film.id) {
+        .task {
             await viewModel.fetch(for: film)
         }
     }
 }
 
 #Preview {
-    @State @Previewable var vm = FilmDetailViewModel(service: MockGhibliService())
-    FilmDetailView(film: .preview, viewModel: vm)
+    FilmDetailView(film: .preview)
 }

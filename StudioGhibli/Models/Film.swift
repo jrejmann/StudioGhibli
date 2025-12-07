@@ -8,7 +8,7 @@
 import Foundation
 import Playgrounds
 
-struct Film: Hashable, Codable, Identifiable, Equatable {
+struct Film: Codable, Identifiable, Equatable, Hashable {
     let id: String
     let title: String
     let description: String

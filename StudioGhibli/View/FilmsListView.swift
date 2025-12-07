@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct FilmsListView: View {
-    var filmsViewModel = FilmsViewModel()
-    var filmDetailViewModel = FilmDetailViewModel()
+    var viewModel = FilmsViewModel()
 
     var body: some View {
         NavigationStack {
-            switch filmsViewModel.state {
+            switch viewModel.state {
             case .idle:
                 Text("No Films yet")
             case .loading:
@@ -22,10 +21,12 @@ struct FilmsListView: View {
                 }
             case .loaded(let films):
                 List(films) { film in
-                    NavigationLink(film.title, value: film)
+                    NavigationLink(value: film) {
+                        Text(film.title)
+                    }
                 }
                 .navigationDestination(for: Film.self) { film in
-                    FilmDetailView(film: film, viewModel: filmDetailViewModel)
+                    FilmDetailView(film: film)
                 }
             case .error(let error):
                 Text(error)
@@ -33,7 +34,7 @@ struct FilmsListView: View {
             }
         }
         .task {
-            await filmsViewModel.fetch()
+            await viewModel.fetch()
         }
     }
 }
@@ -42,5 +43,5 @@ struct FilmsListView: View {
     @State @Previewable var vm =
         FilmsViewModel(service: MockGhibliService())
 
-    FilmsListView(filmsViewModel: vm)
+    FilmsListView(viewModel: vm)
 }

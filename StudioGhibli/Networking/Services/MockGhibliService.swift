@@ -32,6 +32,8 @@ struct MockGhibliService: GhibliService {
             throw APIError.networkError(error)
         }
     }
+    
+    // MARK: - Protocol conformance
 
     func fetchFilms() async throws -> [Film] {
         let data = try loadSampleData()
@@ -39,18 +41,14 @@ struct MockGhibliService: GhibliService {
     }
     
     func fetchPerson(from URLString: String) async throws -> Person {
-        // Extract ID from the URL's last path component
-        guard let url = URL(string: URLString) else {
-            throw APIError.invalidURL
-        }
-        let id = url.lastPathComponent
-
         let data = try loadSampleData()
-        if let person = data.people.first(where: { $0.id == id }) {
-            return person
-        } else {
-            // If the specific person isn't present in the sample data
-            throw APIError.invalidResponse
-        }
+        return data.people.first!
+    }
+    
+    // MARK: - Preview / Testing only
+    
+    func fetchFilm() async throws -> Film {
+        let data = try! loadSampleData()
+        return data.films.first!
     }
 }
