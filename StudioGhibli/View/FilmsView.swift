@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct FilmsView: View {
-    let viewModel: FilmsViewModel
+    let filmsViewModel: FilmsViewModel
+    let favoritesViewModel: FavoritesViewModel
 
     var body: some View {
         NavigationStack {
             Group {
-                switch viewModel.state {
+                switch filmsViewModel.state {
                 case .idle:
                     Text("No Films yet")
                 case .loading:
@@ -21,7 +22,7 @@ struct FilmsView: View {
                         Text("Loading...")
                     }
                 case .loaded(let films):
-                    FilmListView(films: films)
+                    FilmListView(films: films, favoritesViewModel: favoritesViewModel)
                 case .error(let error):
                     Text(error)
                         .foregroundStyle(.red)
@@ -30,12 +31,11 @@ struct FilmsView: View {
             .navigationTitle("Films")
         }
         .task {
-            await viewModel.fetch()
+            await filmsViewModel.fetch()
         }
     }
 }
 
 #Preview {
-    @State @Previewable var vm = FilmsViewModel(service: MockGhibliService())
-    FilmsView(viewModel: vm)
+    FilmsView(filmsViewModel: FilmsViewModel.example, favoritesViewModel: FavoritesViewModel.example)
 }
