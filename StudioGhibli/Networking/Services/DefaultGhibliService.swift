@@ -8,8 +8,10 @@
 import Foundation
 
 struct DefaultGhibliService: GhibliService {
-    
-    private func fetch<T: Decodable>(from URLString: String, type: T.Type) async throws -> T {
+
+    private func fetch<T: Decodable>(from URLString: String, type: T.Type)
+        async throws -> T
+    {
         guard let url = URL(string: URLString) else {
             throw APIError.invalidURL
         }
@@ -30,13 +32,22 @@ struct DefaultGhibliService: GhibliService {
             throw APIError.networkError(error)
         }
     }
-    
+
     func fetchFilms() async throws -> [Film] {
         let url = "https://ghibliapi.vercel.app/films"
         return try await fetch(from: url, type: [Film].self)
     }
-    
+
     func fetchPerson(from URLString: String) async throws -> Person {
         return try await fetch(from: URLString, type: Person.self)
+    }
+
+    func searchFilm(for searchTerm: String) async throws -> [Film] {
+        // API does not have endpoint for search parameter, otherwise it should be used
+        let allFilms = try await fetchFilms()
+
+        return allFilms.filter { film in
+            film.title.localizedStandardContains(searchTerm)
+        }
     }
 }

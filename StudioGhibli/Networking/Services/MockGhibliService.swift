@@ -32,23 +32,31 @@ struct MockGhibliService: GhibliService {
             throw APIError.networkError(error)
         }
     }
-    
+
     // MARK: - Protocol conformance
 
     func fetchFilms() async throws -> [Film] {
         let data = try loadSampleData()
         return data.films
     }
-    
+
     func fetchPerson(from URLString: String) async throws -> Person {
         let data = try loadSampleData()
         return data.people.first!
     }
-    
+
+    func searchFilm(for searchTerm: String) async throws -> [Film] {
+        let allFilms = try await fetchFilms()
+
+        return allFilms.filter { film in
+            film.title.localizedStandardContains(searchTerm)
+        }
+    }
     // MARK: - Preview / Testing only
-    
+
     func fetchFilm() async throws -> Film {
         let data = try! loadSampleData()
         return data.films.first!
     }
+
 }
