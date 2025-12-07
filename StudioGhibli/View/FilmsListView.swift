@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FilmsListView: View {
     var filmsViewModel = FilmsViewModel()
+    var filmDetailViewModel = FilmDetailViewModel()
 
     var body: some View {
         NavigationStack {
@@ -21,7 +22,10 @@ struct FilmsListView: View {
                 }
             case .loaded(let films):
                 List(films) { film in
-                    Text(film.title)
+                    NavigationLink(film.title, value: film)
+                }
+                .navigationDestination(for: Film.self) { film in
+                    FilmDetailView(film: film, viewModel: filmDetailViewModel)
                 }
             case .error(let error):
                 Text(error)

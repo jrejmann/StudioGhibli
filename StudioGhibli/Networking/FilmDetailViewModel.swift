@@ -1,5 +1,5 @@
 //
-//  FilmsViewModel.swift
+//  FilmDetailViewModel.swift
 //  StudioGhibli
 //
 //  Created by Kuba Rejmann on 07/12/2025.
@@ -9,31 +9,36 @@ import Foundation
 import Observation
 
 @Observable
-class FilmsViewModel {
-
+class FilmDetailViewModel {
+    
     enum State: Equatable {
         case idle
         case loading
-        case loaded([Film])
+        case loaded([Person])
         case error(String)
     }
 
     var state: State = .idle
-    var films: [Film] = []
-
-    private let service: GhibliService
-
+    var people: [Person] = []
+    
+    let service: GhibliService
+    
     init(service: GhibliService = DefaultGhibliService()) {
         self.service = service
     }
-
-    func fetch() async {
-        guard state == .idle else { return }
+    
+    func fetch(for film: Film) async {
         self.state = .loading
-
+        self.people = []
+        var data: [Person] = []
+        
         do {
-            let films = try await service.fetchFilms()
-            self.state = .loaded(films)
+            for personInfoURL in film.people {
+                let person = try await service.fetchPerson(from: personInfoURL)
+                data.append(person)
+            }
+            self.people = data
+            self.state = .loaded(data)
         } catch let error as APIError {
             self.state = .error(error.localizedDescription)
         } catch {
