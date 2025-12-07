@@ -18,21 +18,23 @@ struct ContentView: View {
         _filmsViewModel = State(initialValue: filmsViewModel)
         _favoritesViewModel = State(initialValue: favoritesViewModel)
     }
-    
+
     var body: some View {
         TabView {
             Tab("Films", systemImage: "movieclapper") {
-                FilmsView(filmsViewModel: filmsViewModel, favoritesViewModel: favoritesViewModel)
+                FilmsView(
+                    filmsViewModel: filmsViewModel,
+                    favoritesViewModel: favoritesViewModel
+                )
             }
-            
+
             Tab("Favorites", systemImage: "heart") {
-                FavoritesView(filmsViewModel: filmsViewModel, favoritesViewModel: favoritesViewModel)
+                FavoritesView(
+                    filmsViewModel: filmsViewModel,
+                    favoritesViewModel: favoritesViewModel
+                )
             }
-            
-            Tab("Settings", systemImage: "gear") {
-                SettingsView()
-            }
-            
+
             Tab(role: .search) {
                 SearchView(favoritesViewModel: favoritesViewModel)
             }
@@ -44,6 +46,8 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(filmsViewModel: FilmsViewModel.example, favoritesViewModel: FavoritesViewModel.example)
+    ContentView(
+        filmsViewModel: FilmsViewModel.example,
+        favoritesViewModel: FavoritesViewModel.example
+    )
 }
-
