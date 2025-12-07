@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var filmsViewModel = FilmsViewModel()
+    private let service: GhibliService
+    @State private var filmsViewModel: FilmsViewModel
+
+    init(service: GhibliService = DefaultGhibliService()) {
+        self.service = service
+        _filmsViewModel = State(initialValue: FilmsViewModel(service: service))
+    }
     
     var body: some View {
         TabView {
-            
             Tab("Films", systemImage: "movieclapper") {
-                FilmsListView(viewModel: filmsViewModel)
+                FilmsView(viewModel: filmsViewModel)
             }
             
             Tab("Favorites", systemImage: "heart") {
@@ -26,12 +31,12 @@ struct ContentView: View {
             }
             
             Tab(role: .search) {
-                SearchScreen()
+                SearchView()
             }
         }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(service: MockGhibliService())
 }

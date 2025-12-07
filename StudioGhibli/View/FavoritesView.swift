@@ -10,8 +10,18 @@ import SwiftUI
 struct FavoritesView: View {
     let viewModel: FilmsViewModel
     
+    let favoriteFilms: [Film] = []
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            FilmListView(films: favoriteFilms)
+                .navigationTitle("Favorites")
+                .overlay {
+                    if (favoriteFilms.isEmpty) {
+                        ContentUnavailableView("No favorites yet", systemImage: "heart.fill", description: Text("Tap the heart on a film to save it here."))
+                    }
+                }
+        }
     }
 }
 

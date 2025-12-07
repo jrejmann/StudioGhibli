@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SearchScreen: View {
+struct SearchView: View {
     @State private var text: String = ""
     
     var body: some View {
@@ -19,5 +19,5 @@ struct SearchScreen: View {
 }
 
 #Preview {
-    SearchScreen()
+    SearchView()
 }
