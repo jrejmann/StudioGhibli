@@ -13,7 +13,7 @@ enum APIError: LocalizedError {
     case invalidResponse
     case decoding(Error)
     case networkError(Error)
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidURL:
@@ -30,47 +30,34 @@ enum APIError: LocalizedError {
 
 @Observable
 class FilmsViewModel {
-    
+
     enum State: Equatable {
         case idle
         case loading
         case loaded([Film])
         case error(String)
     }
-    
+
     var state: State = .idle
     var films: [Film] = []
-    
+
+    private let service: GhibliService
+
+    init(service: GhibliService = DefaultGhibliService()) {
+        self.service = service
+    }
+
     func fetch() async {
         guard state == .idle else { return }
         self.state = .loading
-        
+
         do {
-            let films = try await fetchFilms()
+            let films = try await service.fetchFilms()
             self.state = .loaded(films)
         } catch let error as APIError {
             self.state = .error(error.localizedDescription)
         } catch {
             self.state = .error("unknown error")
-        }
-    }
-    
-    private func fetchFilms() async throws -> [Film] {
-        let url = URL(string: "https://ghibliapi.vercel.app/films")!
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode) else {
-                throw APIError.invalidResponse
-            }
-            
-            return try JSONDecoder().decode([Film].self, from: data)
-        } catch let error as DecodingError {
-            throw APIError.decoding(error)
-        } catch let error as URLError {
-            throw APIError.networkError(error)
         }
     }
 }

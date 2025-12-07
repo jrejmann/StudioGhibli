@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct FilmsListView: View {
-    @State private var filmsViewModel = FilmsViewModel()
-    
+    var filmsViewModel = FilmsViewModel()
+
     var body: some View {
         NavigationStack {
             switch filmsViewModel.state {
@@ -35,5 +35,8 @@ struct FilmsListView: View {
 }
 
 #Preview {
-    FilmsListView()
+    @State @Previewable var vm =
+        FilmsViewModel(service: MockGhibliService())
+
+    FilmsListView(filmsViewModel: vm)
 }
