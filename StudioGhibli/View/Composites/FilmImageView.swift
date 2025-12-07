@@ -8,10 +8,18 @@
 import SwiftUI
 
 struct FilmImageView: View {
-    let urlPath: String
+    let url: URL?
+    
+    init(urlPath: String) {
+        self.url = URL(string: urlPath)
+    }
+    
+    init(url: URL) {
+        self.url = url
+    }
     
     var body: some View {
-        AsyncImage(url: URL(string: urlPath)) {
+        AsyncImage(url: url) {
             phase in
             switch phase {
             case .empty:
@@ -24,7 +32,7 @@ struct FilmImageView: View {
                 image
                     .resizable()
                     .scaledToFill()
-            case .failure(let error):
+            case .failure(_):
                 Text("Could not get image")
             @unknown default:
                 fatalError()
@@ -34,11 +42,11 @@ struct FilmImageView: View {
 }
 
 #Preview("Poster image") {
-    FilmImageView(urlPath: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/npOnzAbLh6VOIu3naU5QaEcTepo.jpg")
+    FilmImageView(url: URL.convertAssetImage(named: "posterImage")!)
         .frame(height: 150)
 }
 
 #Preview("Banner image") {
-    FilmImageView(urlPath: "https://image.tmdb.org/t/p/w533_and_h300_bestv2/3cyjYtLWCBE1uvWINHFsFnE8LUK.jpg")
+    FilmImageView(url: URL.convertAssetImage(named: "bannerImage")!)
         .frame(height: 300)
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FilmsListView: View {
-    var viewModel = FilmsViewModel()
+    let viewModel: FilmsViewModel
 
     var body: some View {
         NavigationStack {
@@ -22,23 +22,10 @@ struct FilmsListView: View {
             case .loaded(let films):
                 List(films) { film in
                     NavigationLink(value: film) {
-                        HStack {
-                            FilmImageView(urlPath: film.image)
-                                .frame(width: 100, height: 150)
-                                .cornerRadius(16)
-                                .padding(.trailing)
-                            
-                            VStack(alignment: .leading) {
-                                Text(film.title)
-                                    .font(.title3)
-                                Text(film.director)
-                                    .font(Font.title3.italic())
-                                Text(film.releaseYear)
-                            }
-                        }
+                        FilmListCellView(film: film)
                     }
                 }
-                .navigationTitle("Films")
+                .navigationTitle("Ghibli Films")
                 .navigationDestination(for: Film.self) { film in
                     FilmDetailView(film: film)
                 }
@@ -54,8 +41,6 @@ struct FilmsListView: View {
 }
 
 #Preview {
-    @State @Previewable var vm =
-        FilmsViewModel(service: MockGhibliService())
-
+    @State @Previewable var vm = FilmsViewModel(service: MockGhibliService())
     FilmsListView(viewModel: vm)
 }

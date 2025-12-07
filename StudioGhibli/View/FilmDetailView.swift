@@ -51,5 +51,5 @@ struct FilmDetailView: View {
 }
 
 #Preview {
-    FilmDetailView(film: .preview)
+    FilmDetailView(film: Film.example)
 }
