@@ -1,0 +1,76 @@
+//
+//  FilmsViewModel.swift
+//  StudioGhibli
+//
+//  Created by Kuba Rejmann on 07/12/2025.
+//
+
+import Foundation
+import Observation
+
+enum APIError: LocalizedError {
+    case invalidURL
+    case invalidResponse
+    case decoding(Error)
+    case networkError(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "The URL is invalid"
+        case .invalidResponse:
+            return "Invalid response from server"
+        case .decoding(let error):
+            return "Failed to decode response: \(error.localizedDescription)"
+        case .networkError(let error):
+            return "Network error: \(error.localizedDescription)"
+        }
+    }
+}
+
+@Observable
+class FilmsViewModel {
+    
+    enum State: Equatable {
+        case idle
+        case loading
+        case loaded([Film])
+        case error(String)
+    }
+    
+    var state: State = .idle
+    var films: [Film] = []
+    
+    func fetch() async {
+        guard state == .idle else { return }
+        self.state = .loading
+        
+        do {
+            let films = try await fetchFilms()
+            self.state = .loaded(films)
+        } catch let error as APIError {
+            self.state = .error(error.localizedDescription)
+        } catch {
+            self.state = .error("unknown error")
+        }
+    }
+    
+    private func fetchFilms() async throws -> [Film] {
+        let url = URL(string: "https://ghibliapi.vercel.app/films")!
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                throw APIError.invalidResponse
+            }
+            
+            return try JSONDecoder().decode([Film].self, from: data)
+        } catch let error as DecodingError {
+            throw APIError.decoding(error)
+        } catch let error as URLError {
+            throw APIError.networkError(error)
+        }
+    }
+}

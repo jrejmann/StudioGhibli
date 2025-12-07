@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Film: Codable, Identifiable {
+struct Film: Codable, Identifiable, Equatable {
     let id: String
     let title: String
     let description: String
@@ -40,7 +40,7 @@ import Playgrounds
     do {
         let (data, response) = try await URLSession.shared.data(from: url)
         
-        try JSONDecoder().decode(Array<Film>.self, from: data)
+        try JSONDecoder().decode([Film].self, from: data)
     } catch {
         print(error)
     }
